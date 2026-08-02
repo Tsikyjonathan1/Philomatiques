@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – Association Philomatique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f4f4f6; color: #1e1e2a; padding: 2rem 1rem; line-height: 1.6; }
+        .dashboard-wrapper { max-width: 1100px; margin: 0 auto; }
+        .dash-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid #d0cfd4; }
+        .dash-header h1 { font-family: 'Playfair Display', serif; font-weight: 400; font-size: 2.2rem; color: #1e1e2a; }
+        .dash-header .badge { font-size: 0.75rem; background: #a37e4c; color: #fff; padding: 0.35rem 1rem; border-radius: 20px; letter-spacing: 0.5px; font-weight: 500; }
+        .top-actions { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+        .top-actions button { background: #1e1e2a; color: #fff; border: none; padding: 0.6rem 1.5rem; border-radius: 30px; font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: background 0.2s; letter-spacing: 0.3px; }
+        .top-actions button:hover { background: #a37e4c; }
+        .top-actions button.secondary { background: #e6e6ea; color: #1e1e2a; }
+        .top-actions button.secondary:hover { background: #d0cfd4; }
+        .dash-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2.5rem; background: #fff; padding: 0.5rem 0.5rem; border-radius: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .dash-nav button { background: transparent; border: none; padding: 0.6rem 1.8rem; border-radius: 30px; font-weight: 500; font-size: 0.85rem; color: #5a5a6e; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
+        .dash-nav button.active { background: #1e1e2a; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .dash-nav button:hover:not(.active) { background: #efeff2; }
+        .panel { display: none; animation: fadeIn 0.3s ease; }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .editor-card { background: #fff; border-radius: 20px; padding: 1.8rem 2rem 2.5rem; margin-bottom: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.03); border: 1px solid #ebebef; }
+        .editor-card h2 { font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.6rem; margin-bottom: 0.2rem; color: #1e1e2a; }
+        .editor-card .sub { color: #7a7a8e; font-size: 0.9rem; margin-bottom: 1.8rem; border-left: 3px solid #a37e4c; padding-left: 1rem; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 0.3rem; background: #f8f8fa; padding: 0.6rem 0.8rem; border-radius: 14px; margin-bottom: 1.2rem; align-items: center; border: 1px solid #e6e6ea; }
+        .toolbar .group-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #8a8a9e; margin-right: 0.5rem; }
+        .toolbar button { background: transparent; border: none; width: 36px; height: 36px; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; color: #2a2a3a; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
+        .toolbar button:hover { background: #e0e0e8; }
+        .toolbar input[type="color"] { width: 32px; height: 32px; border: none; background: transparent; cursor: pointer; padding: 0; }
+        .toolbar .separator { width: 1px; height: 28px; background: #d0cfd4; margin: 0 0.3rem; }
+        .editable-area { border: 1px solid #e6e6ea; border-radius: 14px; padding: 1.5rem 1.8rem; min-height: 180px; background: #fdfdfd; font-size: 1rem; line-height: 1.8; outline: none; transition: border-color 0.2s; font-family: 'Inter', sans-serif; color: #1e1e2a; }
+        .editable-area:focus { border-color: #a37e4c; box-shadow: 0 0 0 3px rgba(163,126,76,0.08); }
+        .messages-list { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem; }
+        .message-card { background: #fafafa; border-radius: 16px; padding: 1.5rem 2rem; border: 1px solid #e6e6ea; transition: box-shadow 0.2s; }
+        .message-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .message-header { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; margin-bottom: 0.5rem; }
+        .message-header .name { font-weight: 600; font-size: 1.1rem; color: #1e1e2a; }
+        .message-header .email { color: #a37e4c; font-size: 0.9rem; }
+        .message-header .date { color: #7a7a8e; font-size: 0.8rem; }
+        .message-subject { font-weight: 500; margin: 0.3rem 0 0.8rem 0; color: #1e1e2a; }
+        .message-body { color: #3a3a4e; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+        .message-actions { margin-top: 1rem; display: flex; gap: 0.8rem; justify-content: flex-end; }
+        .message-actions .delete-btn { color: #b33c3c; border-color: #f0d0d0; background: none; border: 1px solid #d0cfd4; padding: 0.3rem 1.2rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+        .message-actions .delete-btn:hover { background: #b33c3c; color: #fff; border-color: #b33c3c; }
+        .empty-messages { text-align: center; padding: 3rem 0; color: #7a7a8e; font-style: italic; }
+        .preview-section { margin-top: 3rem; border-top: 2px dashed #d0cfd4; padding-top: 2.5rem; }
+        .preview-section h3 { font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.5rem; margin-bottom: 1.5rem; color: #1e1e2a; }
+        .preview-box { background: #fff; border-radius: 20px; padding: 2.5rem; border: 1px solid #ebebef; max-height: 600px; overflow-y: auto; }
+        .preview-box .tab-preview { display: none; }
+        .preview-box .tab-preview.active { display: block; animation: fadeIn 0.3s ease; }
+        .preview-box .tab-preview h2 { font-family: 'Playfair Display', serif; font-weight: 400; font-size: 2rem; margin-bottom: 1.5rem; }
+        .preview-box .tab-preview p { margin-bottom: 1.2rem; font-size: 1rem; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #1e1e2a; color: #fff; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); font-weight: 500; display: flex; align-items: center; gap: 12px; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); z-index: 999; max-width: 500px; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: #22c55e; }
+        .toast.error { background: #ef4444; }
+        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
+        .upload-btn-wrapper input[type="file"] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .upload-btn-wrapper .btn { padding: 8px 16px; border: 1px solid #d0cfd4; border-radius: 8px; background: #f8f8fa; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .upload-btn-wrapper .btn:hover { background: #e6e6ea; }
+        .image-preview { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+        .image-preview img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; }
+        .image-preview .placeholder { width: 120px; height: 80px; border-radius: 8px; border: 2px dashed #d0cfd4; display: flex; align-items: center; justify-content: center; color: #7a7a8e; font-size: 12px; text-align: center; padding: 8px; }
+        .form-control { width: 100%; padding: 10px 14px; border: 1px solid #d0cfd4; border-radius: 8px; font-size: 14px; background: #fafbfc; transition: border 0.2s, box-shadow 0.2s; }
+        .form-control:focus { outline: none; border-color: #a37e4c; box-shadow: 0 0 0 3px rgba(163,126,76,0.15); background: #fff; }
+        .text-muted { color: #7a7a8e; font-size: 13px; margin-top: 4px; }
+        @media (max-width: 700px) { body { padding: 1rem 0.5rem; } .dash-header { flex-direction: column; align-items: stretch; } .top-actions { justify-content: stretch; } .top-actions button { flex: 1; text-align: center; } .dash-nav { border-radius: 20px; gap: 0.2rem; justify-content: center; } .dash-nav button { padding: 0.5rem 1rem; font-size: 0.75rem; flex: 1; text-align: center; } .editor-card { padding: 1.2rem; } .toolbar { gap: 0.2rem; } .toolbar button { width: 32px; height: 32px; font-size: 0.9rem; } .editable-area { padding: 1rem; min-height: 120px; } .preview-box { padding: 1.2rem; } .message-card { padding: 1rem; } }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+    <!-- En-tête -->
+    <header class="dash-header">
+        <h1>✎ Dashboard Philomatique</h1>
+        <div class="top-actions">
+            <button onclick="reloadFromServer()" style="background:#6b7280;">⟳ Recharger</button>
+            <button onclick="saveAll()">💾 Sauvegarder tout</button>
+            <button class="secondary" onclick="resetAll()">⟲ Réinitialiser</button>
+            <span class="badge" id="statusBadge">Prêt</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="dash-nav" id="dashNav">
+        <button class="active" data-panel="panel-accueil">Accueil</button>
+        <button data-panel="panel-presentation">Présentation</button>
+        <button data-panel="panel-travaux">Travaux</button>
+        <button data-panel="panel-contact">Contact</button>
+        <button data-panel="panel-messages">📬 Messages</button>
+    </nav>
+
+    <!-- ===== PANEL ACCUEIL ===== -->
+    <div id="panel-accueil" class="panel active">
+        <div class="editor-card">
+            <h2>Page d'accueil</h2>
+            <div class="sub">Contenu principal de l'onglet « Bienvenue »</div>
+
+            <!-- IMAGE DE FOND DU HÉROS -->
+            <div style="margin-bottom: 24px;">
+                <label style="display:block;font-weight:600;margin-bottom:6px;font-size:14px;color:#1e1e2a;">Image de fond du héros</label>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="heroBackground" class="form-control" style="flex:1; min-width:200px;" placeholder="Chemin de l'image (ex: /uploads/..." />
+                    <span class="upload-btn-wrapper">
+                        <button class="btn" type="button"><i class="fas fa-upload"></i> Upload</button>
+                        <input type="file" accept="image/*" id="heroUpload" />
+                    </span>
+                </div>
+                <div class="image-preview" id="heroPreviewContainer">
+                    <img id="heroPreviewImage" src="" alt="Aperçu du héros" style="display:none;" />
+                    <span class="placeholder" id="heroPreviewPlaceholder"><i class="fas fa-image"></i><br />Aucune image</span>
+                </div>
+                <div class="text-muted">Laissez vide pour utiliser l'image par défaut (bibliothèque).</div>
+                <div class="text-muted" style="color:#a37e4c; font-weight:500;">📸 L'upload envoie l'image vers le serveur, le chemin est automatiquement enregistré.</div>
+            </div>
+
+            <div class="toolbar" data-editor="accueil-editor">
+                <span class="group-label">Style</span>
+                <button data-cmd="bold"><b>B</b></button>
+                <button data-cmd="italic"><i>I</i></button>
+                <button data-cmd="underline"><u>U</u></button>
+                <button data-cmd="strikeThrough"><s>S</s></button>
+                <span class="separator"></span>
+                <button data-cmd="justifyLeft">≡←</button>
+                <button data-cmd="justifyCenter">≡↔</button>
+                <button data-cmd="justifyRight">≡→</button>
+                <button data-cmd="justifyFull">≡⇔</button>
+                <span class="separator"></span>
+                <button data-cmd="insertUnorderedList">•</button>
+                <button data-cmd="insertOrderedList">1.</button>
+                <span class="separator"></span>
+                <button data-cmd="createLink">🔗</button>
+                <button data-cmd="unlink">⛓️</button>
+                <span class="separator"></span>
+                <input type="color" id="colorPicker-accueil" value="#a37e4c" />
+                <button data-cmd="removeFormat">✕</button>
+            </div>
+            <div id="accueil-editor" class="editable-area" contenteditable="true"></div>
+            <div style="margin-top: 12px; display:flex; gap:12px; flex-wrap:wrap;">
+                <button onclick="saveSingle('accueil')" style="background:#1e1e2a;color:#fff;border:none;padding:0.5rem 1.8rem;border-radius:30px;font-weight:500;cursor:pointer;">💾 Sauvegarder cette page</button>
+                <button onclick="document.getElementById('accueil-editor').innerHTML = ''; showToast('Contenu vidé.', 'success');" style="background:#6b7280;color:#fff;border:none;padding:0.5rem 1.8rem;border-radius:30px;font-weight:500;cursor:pointer;">🗑 Vider</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PANEL PRÉSENTATION ===== -->
+    <div id="panel-presentation" class="panel">
+        <div class="editor-card">
+            <h2>Qui sommes-nous ?</h2>
+            <div class="sub">Texte de présentation et axes fondateurs</div>
+            <div class="toolbar" data-editor="presentation-editor">
+                <span class="group-label">Style</span>
+                <button data-cmd="bold"><b>B</b></button>
+                <button data-cmd="italic"><i>I</i></button>
+                <button data-cmd="underline"><u>U</u></button>
+                <button data-cmd="strikeThrough"><s>S</s></button>
+                <span class="separator"></span>
+                <button data-cmd="justifyLeft">≡←</button>
+                <button data-cmd="justifyCenter">≡↔</button>
+                <button data-cmd="justifyRight">≡→</button>
+                <button data-cmd="justifyFull">≡⇔</button>
+                <span class="separator"></span>
+                <button data-cmd="insertUnorderedList">•</button>
+                <button data-cmd="insertOrderedList">1.</button>
+                <span class="separator"></span>
+                <button data-cmd="createLink">🔗</button>
+                <button data-cmd="unlink">⛓️</button>
+                <span class="separator"></span>
+                <input type="color" id="colorPicker-presentation" value="#a37e4c" />
+                <button data-cmd="removeFormat">✕</button>
+            </div>
+            <div id="presentation-editor" class="editable-area" contenteditable="true"></div>
+            <div style="margin-top: 12px;">
+                <button onclick="saveSingle('presentation')" style="background:#1e1e2a;color:#fff;border:none;padding:0.5rem 1.8rem;border-radius:30px;font-weight:500;cursor:pointer;">💾 Sauvegarder cette page</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PANEL TRAVAUX ===== -->
+    <div id="panel-travaux" class="panel">
+        <div class="editor-card">
+            <h2>Travaux &amp; Lettres</h2>
+            <div class="sub">Présentation de la revue et articles</div>
+            <div class="toolbar" data-editor="travaux-editor">
+                <span class="group-label">Style</span>
+                <button data-cmd="bold"><b>B</b></button>
+                <button data-cmd="italic"><i>I</i></button>
+                <button data-cmd="underline"><u>U</u></button>
+                <button data-cmd="strikeThrough"><s>S</s></button>
+                <span class="separator"></span>
+                <button data-cmd="justifyLeft">≡←</button>
+                <button data-cmd="justifyCenter">≡↔</button>
+                <button data-cmd="justifyRight">≡→</button>
+                <button data-cmd="justifyFull">≡⇔</button>
+                <span class="separator"></span>
+                <button data-cmd="insertUnorderedList">•</button>
+                <button data-cmd="insertOrderedList">1.</button>
+                <span class="separator"></span>
+                <button data-cmd="createLink">🔗</button>
+                <button data-cmd="unlink">⛓️</button>
+                <span class="separator"></span>
+                <input type="color" id="colorPicker-travaux" value="#a37e4c" />
+                <button data-cmd="removeFormat">✕</button>
+            </div>
+            <div id="travaux-editor" class="editable-area" contenteditable="true"></div>
+            <div style="margin-top: 12px;">
+                <button onclick="saveSingle('travaux')" style="background:#1e1e2a;color:#fff;border:none;padding:0.5rem 1.8rem;border-radius:30px;font-weight:500;cursor:pointer;">💾 Sauvegarder cette page</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PANEL CONTACT ===== -->
+    <div id="panel-contact" class="panel">
+        <div class="editor-card">
+            <h2>Contact &amp; Adhésion</h2>
+            <div class="sub">Texte d'introduction et informations de contact</div>
+            <div class="toolbar" data-editor="contact-editor">
+                <span class="group-label">Style</span>
+                <button data-cmd="bold"><b>B</b></button>
+                <button data-cmd="italic"><i>I</i></button>
+                <button data-cmd="underline"><u>U</u></button>
+                <button data-cmd="strikeThrough"><s>S</s></button>
+                <span class="separator"></span>
+                <button data-cmd="justifyLeft">≡←</button>
+                <button data-cmd="justifyCenter">≡↔</button>
+                <button data-cmd="justifyRight">≡→</button>
+                <button data-cmd="justifyFull">≡⇔</button>
+                <span class="separator"></span>
+                <button data-cmd="insertUnorderedList">•</button>
+                <button data-cmd="insertOrderedList">1.</button>
+                <span class="separator"></span>
+                <button data-cmd="createLink">🔗</button>
+                <button data-cmd="unlink">⛓️</button>
+                <span class="separator"></span>
+                <input type="color" id="colorPicker-contact" value="#a37e4c" />
+                <button data-cmd="removeFormat">✕</button>
+            </div>
+            <div id="contact-editor" class="editable-area" contenteditable="true"></div>
+            <div style="margin-top: 12px;">
+                <button onclick="saveSingle('contact')" style="background:#1e1e2a;color:#fff;border:none;padding:0.5rem 1.8rem;border-radius:30px;font-weight:500;cursor:pointer;">💾 Sauvegarder cette page</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PANEL MESSAGES ===== -->
+    <div id="panel-messages" class="panel">
+        <div class="editor-card">
+            <h2>📬 Messages reçus</h2>
+            <div class="sub">Tous les messages envoyés via le formulaire de contact</div>
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button onclick="refreshMessages()" style="background:#1e1e2a; color:#fff; border:none; padding:0.5rem 1.8rem; border-radius:30px; font-weight:500; cursor:pointer;">⟳ Rafraîchir</button>
+                <button onclick="deleteAllMessages()" style="background:#b33c3c; color:#fff; border:none; padding:0.5rem 1.8rem; border-radius:30px; font-weight:500; cursor:pointer;">🗑 Supprimer tout</button>
+            </div>
+            <div id="messagesContainer" class="messages-list"></div>
+        </div>
+    </div>
+
+    <!-- ===== PRÉVISUALISATION ===== -->
+    <div class="preview-section">
+        <h3>🔍 Aperçu des modifications</h3>
+        <div class="preview-box">
+            <div id="preview-accueil" class="tab-preview active"></div>
+            <div id="preview-presentation" class="tab-preview"></div>
+            <div id="preview-travaux" class="tab-preview"></div>
+            <div id="preview-contact" class="tab-preview"></div>
+        </div>
+        <div style="display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap;">
+            <button class="preview-tab-btn active" data-preview="preview-accueil">Accueil</button>
+            <button class="preview-tab-btn" data-preview="preview-presentation">Présentation</button>
+            <button class="preview-tab-btn" data-preview="preview-travaux">Travaux</button>
+            <button class="preview-tab-btn" data-preview="preview-contact">Contact</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span id="toastMessage">Succès</span></div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // ============================================================
+        // 1. RÉFÉRENCES DOM
+        // ============================================================
+        const editors = {
+            accueil: document.getElementById('accueil-editor'),
+            presentation: document.getElementById('presentation-editor'),
+            travaux: document.getElementById('travaux-editor'),
+            contact: document.getElementById('contact-editor')
+        };
+        const previews = {
+            accueil: document.getElementById('preview-accueil'),
+            presentation: document.getElementById('preview-presentation'),
+            travaux: document.getElementById('preview-travaux'),
+            contact: document.getElementById('preview-contact')
+        };
+        const statusBadge = document.getElementById('statusBadge');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const heroBackgroundInput = document.getElementById('heroBackground');
+        const heroPreviewImage = document.getElementById('heroPreviewImage');
+        const heroPreviewPlaceholder = document.getElementById('heroPreviewPlaceholder');
+        const heroUploadInput = document.getElementById('heroUpload');
+
+        // ============================================================
+        // 2. GESTION DE L'UPLOAD DE L'IMAGE DU HÉROS (avec multer)
+        // ============================================================
+        heroUploadInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Vérifier la taille (10 Mo max)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('❌ L\'image dépasse 10 Mo.', 'error');
+                this.value = '';
+                return;
+            }
+
+            // Créer FormData pour l'upload
+            const formData = new FormData();
+            formData.append('heroImage', file);
+
+            try {
+                showToast('⏳ Upload en cours...', 'success');
+                const response = await fetch('/api/upload-hero', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log('📸 Réponse upload:', result);
+
+                if (result.success) {
+                    // Mettre à jour le champ URL avec le chemin
+                    heroBackgroundInput.value = result.imagePath;
+                    // Prévisualisation
+                    heroPreviewImage.src = result.imagePath;
+                    heroPreviewImage.style.display = 'block';
+                    heroPreviewPlaceholder.style.display = 'none';
+                    showToast('✅ Image uploadée avec succès !', 'success');
+                } else {
+                    showToast('❌ Erreur : ' + (result.error || 'inconnue'), 'error');
+                }
+            } catch (err) {
+                console.error('❌ Erreur upload:', err);
+                showToast('❌ Erreur réseau : ' + err.message, 'error');
+            }
+            // Réinitialiser l'input pour permettre de re-uploader
+            this.value = '';
+        });
+
+        // Mettre à jour la prévisualisation quand l'utilisateur change l'URL manuellement
+        heroBackgroundInput.addEventListener('input', function() {
+            const val = this.value.trim();
+            if (val) {
+                heroPreviewImage.src = val;
+                heroPreviewImage.style.display = 'block';
+                heroPreviewPlaceholder.style.display = 'none';
+            } else {
+                heroPreviewImage.style.display = 'none';
+                heroPreviewPlaceholder.style.display = 'block';
+            }
+        });
+
+        // ============================================================
+        // 3. TOAST
+        // ============================================================
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.className = 'toast ' + type + ' show';
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // ============================================================
+        // 4. API – CHARGEMENT ET SAUVEGARDE
+        // ============================================================
+        async function loadConfigFromServer() {
+            try {
+                const res = await fetch('/api/config');
+                if (!res.ok) throw new Error('Erreur ' + res.status);
+                return await res.json();
+            } catch (err) {
+                console.error('Erreur chargement config:', err);
+                showToast('Erreur chargement depuis le serveur.', 'error');
+                return null;
+            }
+        }
+
+        async function saveConfigToServer(updates) {
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`Erreur ${res.status}: ${text}`);
+                }
+                return await res.json();
+            } catch (err) {
+                console.error('Erreur sauvegarde config:', err);
+                throw err;
+            }
+        }
+
+        // ============================================================
+        // 5. CHARGEMENT DES CONTENUS DANS LES ÉDITEURS
+        // ============================================================
+        async function loadEditorsFromServer() {
+            const config = await loadConfigFromServer();
+            if (!config) return false;
+
+            const keys = ['philo_accueil', 'philo_presentation', 'philo_travaux', 'philo_contact'];
+            const mapping = {
+                philo_accueil: 'accueil',
+                philo_presentation: 'presentation',
+                philo_travaux: 'travaux',
+                philo_contact: 'contact'
+            };
+
+            let anyLoaded = false;
+            for (const [serverKey, editorKey] of Object.entries(mapping)) {
+                const content = config[serverKey];
+                if (content !== undefined && content !== null && content.trim() !== '') {
+                    editors[editorKey].innerHTML = content;
+                    anyLoaded = true;
+                }
+            }
+            if (!anyLoaded) {
+                const defaultContents = {
+                    accueil: `<h2>Bienvenue</h2><p>Bienvenue sur l'espace numérique officiel de l'<strong>Association Philomatique de Madagascar</strong>. Fidèle à la tradition des sociétés philomatiques, notre espace a pour vocation de réunir les passionnés des sciences, des lettres, du droit et de la culture dans un esprit d'émulation intellectuelle libre et accessible.</p><div style="font-family:'Playfair Display',serif; font-size:1.6rem; line-height:1.5; color:#1e1e2a; text-align:center; margin:2rem 0; font-style:italic;">Notre objectif est de jeter des ponts entre la réflexion académique, la rigueur philosophique et les dynamiques contemporaines de la société malgache. Ici, le savoir ne s'impose pas, il se partage et se cultive.</div><p>Que vous soyez étudiant, chercheur ou esprit curieux, cet espace est le vôtre. À travers cette plateforme gratuite et indépendante, nous souhaitons faire vivre le débat d'idées et la recherche de la clarté.</p>`,
+                    presentation: `<h2>Qui sommes-nous ?</h2><p>L'Association Philomatique de Madagascar est un collectif indépendant né de la volonté de décloisonner les savoirs. À une époque où la connaissance est souvent sectorisée, nous croyons fermement à la richesse de la pluridisciplinarité.</p><h3>Nos Axes Fondateurs</h3><ul><li><strong>Sciences Humaines et Sociales :</strong> Réflexion philosophique, études juridiques et analyses des institutions publiques.</li><li><strong>Lettres et Culture :</strong> Valorisation du patrimoine linguistique, littéraire et des fondements culturels (le <em>faka</em>) de la société malgache.</li><li><strong>Vulgarisation et Partage :</strong> Rendre accessibles les concepts complexes pour stimuler la participation civique et intellectuelle.</li></ul>`,
+                    travaux: `<h2>Travaux &amp; Lettres</h2><p>Cet espace sera la revue numérique de l'association. Nos membres y publieront régulièrement des articles de fond, des résumés de lectures de thèses, des essais juridiques et des chroniques philosophiques.</p><div style="border:1px solid #ebebef; background:#fafafa; padding:2rem; margin-top:2rem;"><span style="color:#a37e4c; font-weight:500; font-size:0.75rem; text-transform:uppercase; letter-spacing:2px;">Prochainement</span><h4 style="font-family:'Playfair Display',serif; font-size:1.4rem; margin:0.5rem 0 1rem;">Le rôle de la participation civique dans la gouvernance moderne</h4><p style="color:#5a5a6e; font-size:1rem;">Une note d'analyse interdisciplinaire croisant le droit public, l'économie et la science politique.</p></div>`,
+                    contact: `<h2>Contact &amp; Adhésion</h2><p>Vous souhaitez rejoindre l'association, soumettre un article pour la revue ou simplement échanger avec nous ? L'adhésion est entièrement libre et ouverte à toute personne partageant notre amour de l'étude.</p><div style="margin-top:2rem; border-top:1px solid #ebebef; padding-top:2rem;"><p><strong>Secrétariat de l'Association</strong></p><p>Courriel : <span style="color:#a37e4c; font-style:italic;">contact@association-philomatique-mg.org</span></p><p>Siège : Antananarivo, Madagascar</p></div>`
+                };
+                for (const key in editors) {
+                    if (!editors[key].innerHTML.trim()) {
+                        editors[key].innerHTML = defaultContents[key] || '';
+                    }
+                }
+            }
+
+            const heroBg = config.philo_hero_background || '';
+            heroBackgroundInput.value = heroBg;
+            if (heroBg && heroBg.trim() !== '') {
+                heroPreviewImage.src = heroBg;
+                heroPreviewImage.style.display = 'block';
+                heroPreviewPlaceholder.style.display = 'none';
+            } else {
+                heroPreviewImage.style.display = 'none';
+                heroPreviewPlaceholder.style.display = 'block';
+            }
+
+            updateAllPreviews();
+            return true;
+        }
+
+        // ============================================================
+        // 6. SAUVEGARDE DES ÉDITEURS VERS LE SERVEUR
+        // ============================================================
+        async function saveEditorsToServer(updates) {
+            try {
+                await saveConfigToServer(updates);
+                showToast('✅ Contenus sauvegardés sur le serveur', 'success');
+                statusBadge.textContent = '✅ Sauvegardé';
+                setTimeout(() => statusBadge.textContent = 'Prêt', 1500);
+                return true;
+            } catch (err) {
+                showToast('❌ Erreur sauvegarde : ' + err.message, 'error');
+                statusBadge.textContent = '❌ Erreur';
+                setTimeout(() => statusBadge.textContent = 'Prêt', 1500);
+                return false;
+            }
+        }
+
+        window.saveSingle = async function(page) {
+            const editorMap = {
+                accueil: 'philo_accueil',
+                presentation: 'philo_presentation',
+                travaux: 'philo_travaux',
+                contact: 'philo_contact'
+            };
+            const key = editorMap[page];
+            if (!key) return;
+            const content = editors[page].innerHTML;
+            let updates = { [key]: content };
+            if (page === 'accueil') {
+                updates.philo_hero_background = heroBackgroundInput.value.trim();
+            }
+            await saveEditorsToServer(updates);
+            localStorage.setItem('philo_edit_' + page, content);
+            if (page === 'accueil') {
+                localStorage.setItem('philo_hero_background', heroBackgroundInput.value.trim());
+            }
+            updatePreview(page);
+        };
+
+        window.saveAll = async function() {
+            const updates = {
+                philo_accueil: editors.accueil.innerHTML,
+                philo_presentation: editors.presentation.innerHTML,
+                philo_travaux: editors.travaux.innerHTML,
+                philo_contact: editors.contact.innerHTML,
+                philo_hero_background: heroBackgroundInput.value.trim()
+            };
+            await saveEditorsToServer(updates);
+            for (const key of Object.keys(editors)) {
+                localStorage.setItem('philo_edit_' + key, editors[key].innerHTML);
+            }
+            localStorage.setItem('philo_hero_background', heroBackgroundInput.value.trim());
+            updateAllPreviews();
+        };
+
+        window.reloadFromServer = async function() {
+            await loadEditorsFromServer();
+            for (const key of Object.keys(editors)) {
+                localStorage.setItem('philo_edit_' + key, editors[key].innerHTML);
+            }
+            localStorage.setItem('philo_hero_background', heroBackgroundInput.value.trim());
+            updateAllPreviews();
+            showToast('✅ Contenus rechargés depuis le serveur.', 'success');
+            statusBadge.textContent = '↻ Rechargé';
+            setTimeout(() => statusBadge.textContent = 'Prêt', 1500);
+        };
+
+        window.resetAll = function() {
+            if (!confirm('⚠️ Réinitialiser tous les textes à leur version originale ?')) return;
+            for (const key of Object.keys(editors)) {
+                localStorage.removeItem('philo_edit_' + key);
+            }
+            localStorage.removeItem('philo_hero_background');
+            location.reload();
+        };
+
+        // ============================================================
+        // 7. GESTION DES MESSAGES (via API)
+        // ============================================================
+        async function fetchMessages() {
+            try {
+                const res = await fetch('/api/messages');
+                if (!res.ok) throw new Error('Erreur chargement messages');
+                return await res.json();
+            } catch (err) {
+                console.error('Erreur fetch messages:', err);
+                showToast('❌ Erreur chargement des messages.', 'error');
+                return [];
+            }
+        }
+
+        async function renderMessages() {
+            const messages = await fetchMessages();
+            if (messages.length === 0) {
+                messagesContainer.innerHTML = `<div class="empty-messages">📭 Aucun message reçu pour le moment.</div>`;
+                return;
+            }
+            messages.sort((a, b) => b.id - a.id);
+            let html = '';
+            messages.forEach((msg) => {
+                const name = msg.name || msg.nom || 'Anonyme';
+                const email = msg.email || '';
+                const subject = msg.subject || msg.sujet || '';
+                const messageBody = msg.message || '';
+                const date = msg.date || new Date().toISOString();
+                html += `
+                    <div class="message-card" data-id="${msg.id}">
+                        <div class="message-header">
+                            <span class="name">${escapeHtml(name)}</span>
+                            <span class="email">${escapeHtml(email)}</span>
+                            <span class="date">${escapeHtml(new Date(date).toLocaleString())}</span>
+                        </div>
+                        ${subject ? `<div class="message-subject">📌 ${escapeHtml(subject)}</div>` : ''}
+                        <div class="message-body">${escapeHtml(messageBody)}</div>
+                        <div class="message-actions">
+                            <button class="delete-btn" onclick="deleteMessage(${msg.id})"><i class="fas fa-trash"></i> Supprimer</button>
+                        </div>
+                    </div>
+                `;
+            });
+            messagesContainer.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.refreshMessages = async function() {
+            await renderMessages();
+            statusBadge.textContent = '✅ Messages actualisés';
+            setTimeout(() => statusBadge.textContent = 'Prêt', 1200);
+        };
+
+        window.deleteMessage = async function(id) {
+            if (!confirm('Supprimer ce message ?')) return;
+            try {
+                const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Erreur suppression');
+                await renderMessages();
+                showToast('✅ Message supprimé.', 'success');
+                statusBadge.textContent = '🗑 Message supprimé';
+                setTimeout(() => statusBadge.textContent = 'Prêt', 1200);
+            } catch (err) {
+                console.error('Erreur suppression:', err);
+                showToast('❌ Erreur lors de la suppression.', 'error');
+            }
+        };
+
+        window.deleteAllMessages = async function() {
+            if (!confirm('⚠️ Supprimer tous les messages ?')) return;
+            try {
+                const res = await fetch('/api/messages', { method: 'DELETE' });
+                if (!res.ok) throw new Error('Erreur suppression tous');
+                await renderMessages();
+                showToast('✅ Tous les messages supprimés.', 'success');
+                statusBadge.textContent = '🗑 Tous supprimés';
+                setTimeout(() => statusBadge.textContent = 'Prêt', 1200);
+            } catch (err) {
+                console.error('Erreur suppression tous:', err);
+                showToast('❌ Erreur lors de la suppression.', 'error');
+            }
+        };
+
+        // ============================================================
+        // 8. APERÇU, TOOLBAR, AUTO-SAVE
+        // ============================================================
+        function updatePreview(key) {
+            const editor = editors[key];
+            const preview = previews[key];
+            if (!editor || !preview) return;
+            preview.innerHTML = editor.innerHTML;
+        }
+
+        function updateAllPreviews() {
+            for (const key of Object.keys(editors)) {
+                updatePreview(key);
+            }
+        }
+
+        document.querySelectorAll('.toolbar').forEach(toolbar => {
+            const editorId = toolbar.dataset.editor;
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+
+            toolbar.querySelectorAll('[data-cmd]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const cmd = this.dataset.cmd;
+                    if (cmd === 'createLink') {
+                        const url = prompt('Entrez l\'URL du lien :', 'https://');
+                        if (url) {
+                            document.execCommand('createLink', false, url);
+                        }
+                        return;
+                    }
+                    if (cmd === 'unlink') {
+                        document.execCommand('unlink', false, null);
+                        return;
+                    }
+                    document.execCommand(cmd, false, null);
+                    const key = editorId.replace('-editor', '');
+                    updatePreview(key);
+                    autoSave(key);
+                });
+            });
+
+            const colorPicker = toolbar.querySelector('input[type="color"]');
+            if (colorPicker) {
+                colorPicker.addEventListener('input', function() {
+                    document.execCommand('foreColor', false, this.value);
+                    const key = editorId.replace('-editor', '');
+                    updatePreview(key);
+                    autoSave(key);
+                });
+            }
+
+            editor.addEventListener('input', function() {
+                const key = editorId.replace('-editor', '');
+                updatePreview(key);
+                autoSave(key);
+            });
+
+            editor.addEventListener('blur', function() {
+                const key = editorId.replace('-editor', '');
+                updatePreview(key);
+                localStorage.setItem('philo_edit_' + key, editor.innerHTML);
+            });
+        });
+
+        const saveTimeouts = {};
+        function autoSave(key) {
+            if (saveTimeouts[key]) clearTimeout(saveTimeouts[key]);
+            saveTimeouts[key] = setTimeout(() => {
+                localStorage.setItem('philo_edit_' + key, editors[key].innerHTML);
+                delete saveTimeouts[key];
+            }, 800);
+        }
+
+        // ============================================================
+        // 9. NAVIGATION DASHBOARD
+        // ============================================================
+        document.querySelectorAll('#dashNav button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetPanel = this.dataset.panel;
+                document.querySelectorAll('#dashNav button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(targetPanel).classList.add('active');
+                if (targetPanel === 'panel-messages') {
+                    renderMessages();
+                }
+            });
+        });
+
+        document.querySelectorAll('.preview-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.dataset.preview;
+                document.querySelectorAll('.preview-tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.tab-preview').forEach(p => p.classList.remove('active'));
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveAll();
+            }
+        });
+
+        // ============================================================
+        // 10. INITIALISATION
+        // ============================================================
+        (async function init() {
+            await loadEditorsFromServer();
+            for (const key of Object.keys(editors)) {
+                if (!localStorage.getItem('philo_edit_' + key)) {
+                    localStorage.setItem('philo_edit_' + key, editors[key].innerHTML);
+                }
+            }
+            if (!localStorage.getItem('philo_hero_background')) {
+                localStorage.setItem('philo_hero_background', heroBackgroundInput.value.trim() || '');
+            }
+            await renderMessages();
+            updateAllPreviews();
+            console.log('📝 Dashboard Philomatique chargé.');
+            showToast('✅ Données chargées depuis le serveur', 'success');
+        })();
+
+    })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ===== META SEO (injectées par le serveur) ===== -->
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+    <meta name="keywords" content="philomatique, Madagascar, association, savoir, sciences, lettres, culture, partage" />
+    <link rel="canonical" href="https://www.association-philomatique-mg.org/" />
+
+    <!-- ===== OPEN GRAPH / FACEBOOK ===== -->
+    <meta property="og:title" content="<%= title %>" />
+    <meta property="og:description" content="<%= description %>" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.association-philomatique-mg.org/" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1200" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <!-- ===== TWITTER CARDS ===== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= title %>" />
+    <meta name="twitter:description" content="<%= description %>" />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1200" />
+
+    <!-- ===== STRUCTURED DATA (JSON-LD) ===== -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Association Philomatique de Madagascar",
+        "description": "<%= description %>",
+        "url": "https://www.association-philomatique-mg.org/",
+        "logo": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=200",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "contact@association-philomatique-mg.org",
+            "contactType": "Customer Service",
+            "availableLanguage": ["French"]
+        }
+    }
+    </script>
+
+    <!-- ===== FONTS ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ===== TOUT LE CSS ICI (identique à avant) ===== */
+        /* (je le laisse inchangé, il est déjà complet) */
+        :root {
+            --primary: #050505;
+            --primary-light: #1a1a1a;
+            --accent: #A37E4C;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --bg-body: #FAFAFA;
+            --bg-surface: #FFFFFF;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.8; color: var(--text-main); background-color: var(--bg-body); -webkit-font-smoothing: antialiased; }
+        
+        header { 
+            position: relative;
+            color: #FFFFFF; 
+            padding: 8rem 2rem 6rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+            min-height: 400px;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+        header .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.85;
+        }
+        header .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 5, 0.65);
+            z-index: 1;
+        }
+        header h1, header p, .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        header h1 { 
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            color: #FFFFFF;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.9);
+        }
+        header p { 
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            color: #F4D03F;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.95rem;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.9);
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .hero-hamburger { display: none; }
+        .nav-container { position: -webkit-sticky; position: sticky; top: 0; z-index: 100; background-color: var(--bg-surface); box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        nav { display: flex; justify-content: center; gap: 3rem; border-bottom: 1px solid #EBEBEB; padding: 0 2rem; }
+        nav button { background: none; border: none; color: var(--text-muted); padding: 1.5rem 0; font-family: 'Inter', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; cursor: pointer; position: relative; transition: color 0.4s ease; }
+        nav button::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: var(--accent); transform: scaleX(0); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); transform-origin: center; }
+        nav button:hover, nav button.active { color: var(--primary); }
+        nav button.active::after, nav button:hover::after { transform: scaleX(1); }
+        .container { max-width: 800px; margin: 5rem auto; padding: 0 2rem; min-height: 50vh; }
+        .tab-content { display: none; opacity: 0; }
+        .tab-content.active { display: block; animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 400; color: var(--primary); margin-bottom: 2.5rem; position: relative; padding-bottom: 1rem; }
+        h2::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 2px; background-color: var(--accent); }
+        h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--primary); margin: 2.5rem 0 1.5rem 0; }
+        p { margin-bottom: 1.5rem; font-size: 1.1rem; text-align: left; }
+        strong { font-weight: 500; color: var(--primary); }
+        ul { margin-bottom: 1.5rem; padding-left: 0; list-style: none; }
+        li { margin-bottom: 1rem; font-size: 1.1rem; padding-left: 1.5rem; position: relative; }
+        li::before { content: '—'; position: absolute; left: 0; color: var(--accent); }
+        .manifesto-box { font-family: 'Playfair Display', serif; font-size: 1.6rem; line-height: 1.5; color: var(--primary); text-align: center; margin: 4rem 0; padding: 0 2rem; font-style: italic; position: relative; }
+        .manifesto-box::before { content: '“'; font-family: 'Playfair Display', serif; font-size: 5rem; color: var(--accent); opacity: 0.2; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); line-height: 1; }
+        .editorial-card { border: 1px solid #EBEBEB; background-color: var(--bg-surface); padding: 2.5rem; margin-top: 2.5rem; position: relative; transition: box-shadow 0.3s ease; }
+        .editorial-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .editorial-card-tag { color: var(--accent); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 1rem; }
+        .editorial-card-title { margin: 0 0 1rem 0; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+        .contact-form { margin-top: 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; padding: 1rem; border: 1px solid #EBEBEB; background-color: var(--bg-surface); font-family: 'Inter', sans-serif; font-size: 1rem; color: var(--text-main); transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+        .form-group textarea { resize: vertical; min-height: 150px; }
+        
+        button[type="submit"] { background-color: var(--primary); color: var(--bg-surface); border: none; padding: 1rem 2.5rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; align-self: flex-start; margin-top: 1rem; display: flex; align-items: center; justify-content: center; }
+        button[type="submit"]:hover:not(:disabled) { background-color: var(--accent); }
+        button[type="submit"]:disabled { opacity: 0.8; cursor: not-allowed; }
+        button[type="submit"].btn-success { background-color: #2e7d32 !important; color: #ffffff !important; opacity: 1; pointer-events: none; }
+        .btn-spinner {
+            display: inline-block;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .contact-info { border-top: 1px solid #EBEBEB; padding: 2rem 0; margin-top: 4rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-feedback { margin-top: 1.5rem; padding: 1.5rem; background: #fdfaf6; border-left: 4px solid var(--accent); color: var(--primary); display: none; font-weight: 400; border-radius: 0 4px 4px 0; }
+        .form-feedback.show { display: block; animation: fadeUp 0.5s ease forwards; }
+        .form-feedback.error { background: #ffebee; border-color: #c62828; color: #b71c1c; }
+        footer { text-align: center; padding: 4rem 2rem; background-color: var(--primary); color: var(--text-muted); font-size: 0.85rem; }
+        .reload-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+            background: #1e1e2a;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: background 0.2s;
+        }
+        .reload-btn:hover { background: #a37e4c; }
+
+        @media (max-width: 768px) {
+            header { padding: 6rem 1.5rem 4rem; min-height: 300px; }
+            header h1 { font-size: 2.2rem; }
+            .hero-hamburger { display: block; position: absolute; top: 1.2rem; left: 1.2rem; z-index: 200; }
+            .hamburger-btn { background: none; border: none; color: #FFFFFF; cursor: pointer; display: flex; align-items: center; padding: 0.2rem; }
+            .mobile-dropdown { display: none; flex-direction: column; position: absolute; top: calc(100% + 8px); left: 0; width: 230px; background-color: var(--bg-surface); box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 4px; border-left: 3px solid var(--accent); overflow: hidden; z-index: 300; }
+            .mobile-dropdown.open { display: flex; animation: fadeInDown 0.3s ease forwards; }
+            @keyframes fadeInDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+            .mobile-dropdown button { background: none; border: none; text-align: left; padding: 1rem 1.2rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1px solid #F5F5F5; cursor: pointer; }
+            .mobile-dropdown button.active { color: var(--primary); font-weight: 600; background-color: #FAFAFA; border-left: 3px solid var(--accent); }
+            header p { text-align: center; margin: 0 auto; }
+            nav { flex-direction: row; justify-content: flex-start; overflow-x: auto; white-space: nowrap; padding: 0 1rem; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+            nav::-webkit-scrollbar { height: 4px; display: block; -webkit-appearance: none; }
+            nav::-webkit-scrollbar-track { background: #F0F0F0; border-radius: 4px; }
+            nav::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 4px; }
+            nav button { width: auto; padding: 1rem 1rem; border-bottom: none; }
+            nav button::after { height: 100%; background-color: var(--bg-body); bottom: 0; z-index: -1; transform-origin: left; }
+            .container { margin: 3rem auto; padding: 0 1.5rem; }
+            h2 { font-size: 2rem; }
+            .manifesto-box { font-size: 1.3rem; padding: 0; }
+            button[type="submit"] { width: 100%; align-self: auto; }
+            .reload-btn { bottom: 10px; right: 10px; padding: 8px 14px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header id="mainHeader">
+        <img id="heroImage" class="hero-image" src="<%= heroBackground || 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=2000' %>" alt="Image de fond de l'association" />
+        <div class="hero-overlay"></div>
+        
+        <div class="hero-hamburger">
+            <button class="hamburger-btn" onclick="toggleMenu()" aria-label="Menu">
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                    <path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+            </button>
+            <div class="mobile-dropdown" id="mobileDropdown" role="navigation" aria-label="Menu mobile">
+                <button class="nav-btn active" data-target="accueil" onclick="openTab(event, 'accueil')">Accueil</button>
+                <button class="nav-btn" data-target="presentation" onclick="openTab(event, 'presentation')">Qui sommes-nous ?</button>
+                <button class="nav-btn" data-target="travaux" onclick="openTab(event, 'travaux')">Travaux & Lettres</button>
+                <button class="nav-btn" data-target="contact" onclick="openTab(event, 'contact')">Contact & Adhésion</button>
+            </div>
+        </div>
+        <h1>Association Philomatique<br />de Madagascar</h1>
+        <p>L'amour de l'étude, le partage des savoirs</p>
+    </header>
+
+    <!-- ===== NAVIGATION ===== -->
+    <div class="nav-container">
+        <nav role="navigation" aria-label="Navigation principale">
+            <button class="nav-btn active" data-target="accueil" onclick="openTab(event, 'accueil')">Accueil</button>
+            <button class="nav-btn" data-target="presentation" onclick="openTab(event, 'presentation')">Qui sommes-nous ?</button>
+            <button class="nav-btn" data-target="travaux" onclick="openTab(event, 'travaux')">Travaux & Lettres</button>
+            <button class="nav-btn" data-target="contact" onclick="openTab(event, 'contact')">Contact & Adhésion</button>
+        </nav>
+    </div>
+
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <main class="container">
+
+        <!-- ACCUEIL -->
+        <section id="accueil" class="tab-content active" role="tabpanel" aria-label="Accueil">
+            <%- accueil %>
+        </section>
+
+        <!-- PRÉSENTATION -->
+        <section id="presentation" class="tab-content" role="tabpanel" aria-label="Présentation">
+            <%- presentation %>
+        </section>
+
+        <!-- TRAVAUX -->
+        <section id="travaux" class="tab-content" role="tabpanel" aria-label="Travaux et Lettres">
+            <%- travaux %>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact" class="tab-content" role="tabpanel" aria-label="Contact et Adhésion">
+            <%- contact %>
+        </section>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <p>&copy; 2026 Association Philomatique de Madagascar. Tous droits réservés.</p>
+    </footer>
+
+    <!-- ===== BOUTON DE RECHARGEMENT IMAGE ===== -->
+    <button class="reload-btn" onclick="reloadHeroImage()" aria-label="Recharger l'image de fond">⟳ Recharger l'image</button>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ============================================================
+        // GESTION DES ONGLETS
+        // ============================================================
+        function toggleMenu() {
+            document.getElementById("mobileDropdown").classList.toggle("open");
+        }
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.querySelectorAll(".nav-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).style.display = "block";
+            setTimeout(() => {
+                document.getElementById(tabName).classList.add("active");
+            }, 10);
+            var activeBtns = document.querySelectorAll('.nav-btn[data-target="' + tabName + '"]');
+            activeBtns.forEach(function(btn) {
+                btn.classList.add("active");
+            });
+            document.getElementById("mobileDropdown").classList.remove("open");
+        }
+
+        // ============================================================
+        // RECHARGEMENT DE L'IMAGE
+        // ============================================================
+        window.reloadHeroImage = async function() {
+            try {
+                const response = await fetch('/api/config');
+                if (!response.ok) throw new Error('Erreur chargement config');
+                const config = await response.json();
+                const heroBg = config.philo_hero_background;
+                const heroImg = document.getElementById('heroImage');
+                if (heroBg && heroBg.trim() !== '') {
+                    heroImg.src = heroBg + '?t=' + Date.now();
+                    heroImg.style.display = 'block';
+                    alert('✅ Image rechargée !');
+                } else {
+                    alert('ℹ️ Aucune image personnalisée définie.');
+                    heroImg.src = 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=2000&t=' + Date.now();
+                    heroImg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('❌ Erreur rechargement image:', err);
+                alert('❌ Erreur lors du rechargement de l\'image.');
+            }
+        };
+
+        // ============================================================
+        // FORMULAIRE DE CONTACT AVEC ANIMATION
+        // ============================================================
+        function attachContactForm() {
+            const form = document.getElementById('contactForm');
+            if (!form) return;
+            form.removeEventListener('submit', handleContactSubmit);
+            form.addEventListener('submit', handleContactSubmit);
+        }
+
+        async function handleContactSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (!name || !email || !subject || !message) {
+                alert('Veuillez remplir tous les champs.');
+                return;
+            }
+
+            const feedback = document.getElementById('formFeedback');
+            feedback.className = 'form-feedback'; 
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.classList.remove('btn-success');
+            submitBtn.innerHTML = '<span class="btn-spinner"></span> Envoi en cours...';
+
+            try {
+                const fetchPromise = fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, subject, message })
+                });
+                const delayPromise = new Promise(resolve => setTimeout(resolve, 1200));
+                
+                const [response] = await Promise.all([fetchPromise, delayPromise]);
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    submitBtn.classList.add('btn-success');
+                    submitBtn.innerHTML = '✓ Message envoyé !';
+
+                    feedback.innerHTML = '✨ <strong>Merci ' + name + ' !</strong> Votre message s\'est envolé avec succès. Nous en prenons bonne note et vous répondrons très prochainement.';
+                    feedback.className = 'form-feedback show';
+                    
+                    form.reset();
+
+                    setTimeout(() => {
+                        submitBtn.classList.remove('btn-success');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }, 4000);
+
+                } else {
+                    throw new Error(result.error || 'Erreur inconnue');
+                }
+            } catch (err) {
+                console.error('Erreur envoi:', err);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                feedback.textContent = '❌ Erreur lors de l\'envoi : ' + err.message;
+                feedback.className = 'form-feedback show error';
+            }
+        }
+
+        // ============================================================
+        // INITIALISATION
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attacher le formulaire (il est déjà présent dans le DOM)
+            attachContactForm();
+
+            // Activer l'onglet par défaut
+            const activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) {
+                document.getElementById('accueil').style.display = 'block';
+                document.getElementById('accueil').classList.add('active');
+                document.querySelector('.nav-btn[data-target="accueil"]').classList.add('active');
+            }
+
+            console.log('📌 Page chargée avec SEO amélioré (EJS).');
+        });
+    </script>
+</body>
+</html>
