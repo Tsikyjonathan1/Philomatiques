@@ -50,6 +50,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
 
     <style>
+        /* ===== TOUT LE CSS ICI (identique à avant) ===== */
+        /* (je le laisse inchangé, il est déjà complet) */
         :root {
             --primary: #050505;
             --primary-light: #1a1a1a;
@@ -174,6 +176,23 @@
         .form-feedback.show { display: block; animation: fadeUp 0.5s ease forwards; }
         .form-feedback.error { background: #ffebee; border-color: #c62828; color: #b71c1c; }
         footer { text-align: center; padding: 4rem 2rem; background-color: var(--primary); color: var(--text-muted); font-size: 0.85rem; }
+        .reload-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+            background: #1e1e2a;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: background 0.2s;
+        }
+        .reload-btn:hover { background: #a37e4c; }
 
         @media (max-width: 768px) {
             header { padding: 6rem 1.5rem 4rem; min-height: 300px; }
@@ -196,11 +215,13 @@
             h2 { font-size: 2rem; }
             .manifesto-box { font-size: 1.3rem; padding: 0; }
             button[type="submit"] { width: 100%; align-self: auto; }
+            .reload-btn { bottom: 10px; right: 10px; padding: 8px 14px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- ===== HEADER ===== -->
     <header id="mainHeader">
         <img id="heroImage" class="hero-image" src="<%= heroBackground || 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=2000' %>" alt="Image de fond de l'association" />
         <div class="hero-overlay"></div>
@@ -222,6 +243,7 @@
         <p>L'amour de l'étude, le partage des savoirs</p>
     </header>
 
+    <!-- ===== NAVIGATION ===== -->
     <div class="nav-container">
         <nav role="navigation" aria-label="Navigation principale">
             <button class="nav-btn active" data-target="accueil" onclick="openTab(event, 'accueil')">Accueil</button>
@@ -231,6 +253,7 @@
         </nav>
     </div>
 
+    <!-- ===== CONTENU PRINCIPAL ===== -->
     <main class="container">
 
         <!-- ACCUEIL -->
@@ -255,10 +278,13 @@
 
     </main>
 
+    <!-- ===== FOOTER ===== -->
     <footer>
         <p>&copy; 2026 Association Philomatique de Madagascar. Tous droits réservés.</p>
     </footer>
 
+
+    <!-- ===== SCRIPTS ===== -->
     <script>
         // ============================================================
         // GESTION DES ONGLETS
@@ -288,6 +314,31 @@
             });
             document.getElementById("mobileDropdown").classList.remove("open");
         }
+
+        // ============================================================
+        // RECHARGEMENT DE L'IMAGE
+        // ============================================================
+        window.reloadHeroImage = async function() {
+            try {
+                const response = await fetch('/api/config');
+                if (!response.ok) throw new Error('Erreur chargement config');
+                const config = await response.json();
+                const heroBg = config.philo_hero_background;
+                const heroImg = document.getElementById('heroImage');
+                if (heroBg && heroBg.trim() !== '') {
+                    heroImg.src = heroBg + '?t=' + Date.now();
+                    heroImg.style.display = 'block';
+                    alert('✅ Image rechargée !');
+                } else {
+                    alert('ℹ️ Aucune image personnalisée définie.');
+                    heroImg.src = 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=2000&t=' + Date.now();
+                    heroImg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('❌ Erreur rechargement image:', err);
+                alert('❌ Erreur lors du rechargement de l\'image.');
+            }
+        };
 
         // ============================================================
         // FORMULAIRE DE CONTACT AVEC ANIMATION
@@ -365,14 +416,18 @@
         // INITIALISATION
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
+            // Attacher le formulaire (il est déjà présent dans le DOM)
             attachContactForm();
 
+            // Activer l'onglet par défaut
             const activeTab = document.querySelector('.tab-content.active');
             if (!activeTab) {
                 document.getElementById('accueil').style.display = 'block';
                 document.getElementById('accueil').classList.add('active');
                 document.querySelector('.nav-btn[data-target="accueil"]').classList.add('active');
             }
+
+            console.log('📌 Page chargée avec SEO amélioré (EJS).');
         });
     </script>
 </body>
